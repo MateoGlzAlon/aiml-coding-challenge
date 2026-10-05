@@ -13,6 +13,22 @@ The examples use the small-track notebook, but every proposal applies the same w
 
 Recommended order: **check the band order → histogram matching + AdaBN (no retraining) → drop B01/B09 → atmospheric augmentation → self-training (after asking the TAs) → model tweaks.**
 
+### Course alignment
+
+We use the tools and methods taught in the course labs (`ML2026-Lab/`; see `CLAUDE.md`). As of 2026-10-05, the course covers these proposals as follows:
+
+| Proposal | Covered by the course? |
+|---|---|
+| Band-order check, P2 (drop bands) | Yes: only band selection and NumPy (`cc_1`, Lab 103) |
+| P1a `NORM_MODE = "separate"` | Mostly: feature scaling is in Lab 2 (`MinMaxScaler`) |
+| NDVI and other indices (under *Other ideas*) | Yes: NDVI band arithmetic is in `cc_1` |
+| P3 atmospheric augmentation | Not yet. Check Lab 4 (custom datasets), due 12 Oct |
+| P1b histogram matching, P1c AdaBN | No. Ask the team before using them |
+| P4 self-training | No. Lab 9 (transfer learning and self-supervised learning, 7 Dec) may cover related ideas |
+| P5 label smoothing, mixed precision, EMA | No |
+
+Update this table as new labs are published.
+
 ---
 
 ## 1. Why the current submission fails
@@ -228,12 +244,24 @@ Every test-side change adds state that `reproduce_submission` (Section 13) must 
 
 | Technique | Save | Section 13 must |
 |---|---|---|
-| P1b histogram matching | `np.savez(RUN_DIR / "quantiles.npz", q_train=Q_TRAIN, q_test=Q_TEST)` | apply `hist_match` with the saved tables |
+| P1b histogram matching | `save_npz(RUN_DIR / "quantiles.npz", q_train=Q_TRAIN, q_test=Q_TEST)` (see the note below the table) | apply `hist_match` with the saved tables |
 | P1c AdaBN | `small_best_adabn.pt` | load the adapted weights instead of `small_best.pt` |
 | P3 augmentation | `HAZE` in `norm_stats.npz` | nothing at test time (record it anyway, for the slides) |
 | All | new settings (`TEST_PREP`, `ADABN`, `AUG_ATMOS`) in `config.json` and the Kaggle message | read them from `config.json` |
 
 The TAs will test the weights we hand in, so for AdaBN those must be the **adapted** weights.
+
+**Don't call `np.savez` directly on a Drive path.** Run `small_20261005_104424` wrote a corrupted `norm_stats.npz` (`BadZipFile: Bad offset for central directory` in Section 13). The most likely cause: to write a `.npz`, Python goes back to the start of each entry to fill in its checksum, and the Colab Drive mount handles that badly. Build the file in memory and write it to Drive in one go:
+
+```python
+import io
+
+def save_npz(path, **arrays):
+    # np.savez straight onto the Drive mount can corrupt the file, so build it in memory and write it in one go.
+    buf = io.BytesIO()
+    np.savez(buf, **arrays)
+    Path(path).write_bytes(buf.getvalue())
+```
 
 ---
 

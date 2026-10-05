@@ -1,0 +1,4 @@
+[submodule "ML2026-Lab"]
+	path = ML2026-Lab
+	url = https://github.com/HSG-AIML-Teaching/ML2026-Lab
+	branch = main
