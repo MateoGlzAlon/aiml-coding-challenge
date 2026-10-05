@@ -1,0 +1,18 @@
+{
+  "id": "mateogonzalezalonso/eurosat-small-track",
+  "title": "EuroSAT small track",
+  "code_file": "small_track_colab.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "false",
+  "machine_shape": "",
+  "dataset_sources": [
+    "mateogonzalezalonso/eurosat-ms-l1c-cache"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

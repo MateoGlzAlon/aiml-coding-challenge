@@ -1,1 +1,10 @@
 .vscode
+.venv/
+__pycache__/
+kaggle_runs/
+kaggle/net_probe/
+eurosat_cache/
+kaggle/cache_dataset/*.npy
+kaggle/cache_dataset/classes.json
+kaggle/cache_dataset/sample_submission.csv
+kaggle/small_track/*.ipynb
