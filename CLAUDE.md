@@ -25,7 +25,7 @@ The notebooks must use the tools and methods taught in the course repository `ML
 - **Never quietly add a technique the course doesn't teach.** Name it, say the course doesn't cover it, and let the user decide.
 - **When a new lab lands,** compare the notebook with it, propose alignments, and update the table below.
 
-What the course covers so far (as of 2026-10-05: labs 101–103, `cc_1`, Lab 2):
+What the course covers so far (as of 2026-10-05: labs 101–103, `cc_1`, Lab 2, Lab 3):
 
 | Step | Course tool | Where |
 |---|---|---|
@@ -36,15 +36,16 @@ What the course covers so far (as of 2026-10-05: labs 101–103, `cc_1`, Lab 2):
 | Feature scaling | `sklearn.preprocessing.MinMaxScaler` | Lab 2 |
 | Classical classifier | `sklearn.svm.SVC` (linear / rbf / poly, `C`, `gamma`); HOG features with `skimage.feature.hog` | Lab 2 |
 | Evaluation | `metrics.accuracy_score`, `classification_report`, `confusion_matrix` drawn with `sns.heatmap(mat.T, ..., cmap='BuGn_r')` | Lab 2 |
+| PyTorch basics | `nn.Module` models, `nn.Linear`, `nn.ReLU`, `nn.CrossEntropyLoss`, `torch.optim.SGD` (Adam, weight decay and learning-rate schedulers are named in the text), `Dataset`/`DataLoader`, `transforms.ToTensor`, `model.train()`/`model.eval()`, `torch.save`/`torch.load` | Lab 3 |
 | Libraries | numpy, pandas, matplotlib, seaborn, scipy, scikit-image, PIL, torch, torchvision, rasterio (`ML2026-Lab/requirements.txt`) | — |
 
-Planned, per the course README: Lab 3 PyTorch intro and MLP (5 Oct); Lab 4 custom datasets and CNNs (12 Oct); Lab 5 RNN/LSTM; Lab 6 attention; Lab 7 k-means/EM; Lab 8 autoencoders; Lab 9 transfer learning and self-supervised learning (7 Dec).
+Planned, per the course README: Lab 4 custom datasets and CNNs (12 Oct); Lab 5 RNN/LSTM; Lab 6 attention; Lab 7 k-means/EM; Lab 8 autoencoders; Lab 9 transfer learning and self-supervised learning (7 Dec).
 
-**Written before the PyTorch labs.** Notebook Sections 6–8 (Dataset/DataLoader, CNN, training loop) predate Labs 3–4. Align them once those labs are published.
+**Written before the PyTorch labs.** Notebook Sections 6–8 (Dataset/DataLoader, CNN, training loop) predate Labs 3–4. Their Dataset/DataLoader, loss and train/eval structure match Lab 3; align the CNN once Lab 4 is published.
 
 **Not seen in the course yet; flag before relying on them:**
 
-- **In the notebook already:** the AdamW optimiser, cosine learning-rate schedule, BatchNorm and test-time augmentation (TTA).
+- **In the notebook already:** convolutions, BatchNorm, data augmentation (flips, rotations, radiometric jitter) and test-time augmentation (TTA), all expected with Lab 4. AdamW and the cosine schedule are only named in Lab 3's text, not used in its code.
 - **Proposed in `proposals/score_improvements.md`:** histogram matching, AdaBN, pseudo-labelling, EMA and mixed precision.
 
 **Known discrepancy:** `cc_1` lists the EuroSAT band order as B1–B8, B8A, B9–B12, but the data stores **B8A last**. `TRAIN_BANDS` in Section 3 was checked against the data; keep it.
@@ -67,10 +68,13 @@ After a fresh clone, run `make setup` (or clone with `--recurse-submodules`).
 - **Reproducibility:** Section 13 must rebuild the submitted CSV from the run's saved files (rubric). Anything a new test-time step needs (statistics, lookup tables, adapted weights) must be saved in `RUN_DIR` and loaded there.
 - **Saving `.npz` files:** write them to Drive only with `save_npz` (Section 0). A plain `np.savez` on the Drive mount corrupted `norm_stats.npz` once.
 - **Band selection:** `USE_BANDS` may only contain bands listed in `TEST_BANDS`. Drop bands there, not in `KEEP_TRAIN` / `KEEP_TEST`.
-- **Judging changes:** judge changes aimed at the train/test difference by how the predicted test labels spread over the classes and by the Kaggle score. Validation accuracy can't see the L1C → L2A shift.
+- **Judging changes:** judge changes aimed at the train/test difference by how the predicted test labels spread over the classes (the class-mix gap in Section 11) and by the Kaggle score. Validation accuracy can't see the L1C → L2A shift.
+- **Submissions:** every Kaggle submission gets an entry in `SUBMISSIONS.md`: what changed since the previous submission, the settings, validation accuracy, class-mix gap and public score.
 
 ## Environment
 
-The notebook runs on Colab with a T4 GPU, and the data lives on the user's Google Drive. This machine has neither the data nor torch or pandas, so notebook changes can't be run here. Check that edited cells parse, test pure-numpy helpers locally, and say clearly what is untested.
+The notebook runs on Colab with a T4 GPU, and the data lives on the user's Google Drive. This machine has neither the data nor torch or pandas, so notebook changes can't be run locally. Check that edited cells parse and test pure-numpy helpers locally.
+
+To actually run a change, push the notebook to the Kaggle GPU kernel with `.venv/bin/python scripts/kaggle_run.py` (see `KAGGLE_WORKFLOW.md`). Results land in `kaggle_runs/<timestamp>/`. There is **one shared kernel**: never push while another session's run is in progress, because both sessions then pull the same output. Submit to Kaggle only with the user's OK; the daily cap is shared by the team.
 
 The notebook is stored as Colab JSON (indent 2, no trailing newline). Edit it through a JSON load and dump, not by hand.
